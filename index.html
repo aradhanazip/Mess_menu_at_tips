@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mess Menu</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1f6b45">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+:root{--bg:#fdf6ea;--card:#fff;--tx:#1d2b1f;--mu:#6b7569;--bd:#e6dcc8;--g:#1f6b45;--b:#c9791c;--d:#1f4f9a;--bk:#3f5a2a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121512;--card:#1c211d;--tx:#eef2ec;--mu:#9aa597;--bd:#2c342d}}
+:root[data-theme="dark"]{--bg:#121512;--card:#1c211d;--tx:#eef2ec;--mu:#9aa597;--bd:#2c342d}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;max-width:560px;margin:0 auto;padding:14px}
+h1{font-size:22px;margin:4px 0 2px}
+.sub{color:var(--mu);font-size:13px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+button{font:inherit;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:999px;padding:5px 12px;cursor:pointer}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin:12px 0}
+.tabs button{flex:0 0 auto;font-size:14px}
+.tabs button.on{background:var(--g);color:#fff;border-color:var(--g)}
+.tabs button.today{font-weight:700}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;margin-bottom:12px;overflow:hidden}
+.card.now{outline:2px solid var(--g)}
+.hd{padding:9px 14px;color:#fff;font-weight:700;display:flex;justify-content:space-between}
+.hd small{font-weight:400;opacity:.9}
+.B .hd{background:var(--bk)}.L .hd{background:var(--b)}.D .hd{background:var(--d)}
+ul{margin:0;padding:8px 14px 10px 30px}
+li{padding:2px 0}
+li.s{font-weight:600}
+.ft{color:var(--mu);font-size:12px;margin:6px 2px 20px}
+</style></head><body>
+<h1 id="t"></h1>
+<div class="sub"><span id="wk"></span><button id="sw">Switch week</button></div>
+<div class="tabs" id="tabs"></div>
+<div id="out"></div>
+<div class="ft">Developed by [Your Name] · © 2026 · Student-made menu viewer, not an official LPU app.<br>* Seasonal vegetable shown for the current season. Menu may change per mess committee. Tap “Switch week” if the week shown is wrong — it remembers.</div>
+<script>
+var D=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+var K=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+var M={1:{B:[
+"Masala Dosa|Sambhar|Cold Sandwich|Tomato Ketchup|Garlic Tomato Chutney|Moth Bean Sprouts|White Bread|Jam|Butter (1 sachet)|Cornflakes|Masala Tea|Coffee|Plain Milk",
+"Stuffed Mix Prantha|Packed Curd|Veg. Stuffed Toast|Tomato Ketchup|Idli with Sambhar|Coconut Chutney|Sweet Dalia|Brown Bread|Jam|Butter (1 sachet)|Cornflakes|Masala Tea|Coffee|Plain Milk",
+"Poori|Aloo Curry|Black Chana Masala|Tomato Ketchup|Mysore Bonda|South Tomato Chutney|Moong Sprouts|White Bread|Jam|Cornflakes|Masala Tea|Coffee|Plain Milk|Banana",
+"Kulcha (Toasted)|Chana / Matar Gravy|Vermicelli Upma|Tomato Ketchup|Mix Veg Utthapam|Coconut Chutney|Vegetable Dalia|Brown Bread|Jam|Butter (1 sachet)|Cornflakes|Masala Tea|Coffee|Plain Milk",
+"Plain Prantha|Aloo Bhujia|Vegetable Macaroni|Tomato Ketchup|Minapa Punugulu|Peanut Chutney|Black Chana Sprouts|White Bread|Jam|Cornflakes|Masala Tea|Coffee|Plain Milk|Seasonal Fruit",
+"Stuffed Mooli / Onion Prantha|Packed Curd|Aloo Bonda|Tomato Ketchup|Vegetable Rawa Upma|Tomato Gojju|Mix Dal Sprouts|Brown Bread|Jam|Butter (1 sachet)|Cornflakes|Masala Tea|Coffee|Plain Milk",
+"Soya Paneer Prantha|Pickle|Sweet Dalia|Medu Vada with Sambhar|Peanut Chutney|Mixed Cut Fruits|White Bread|Jam|Butter (1 sachet)|Cornflakes|Masala Tea|Coffee|Plain Milk"],
+L:[
+"Kara Kuzhambu|Cabbage Poriyal|Puliyodharai|Pindi Chhole|Aloo Pyaz Masaledar|Plain Rice|Boondi Raita|Roti and Bhatura|Pickled Salad",
+"Mudha Pappu|Tomato Meal Maker|Plain Rice|Dal Milijuli|#|Veg Pulao|Plain Curd|Roti|Fryums",
+"Vankaya Curry|Mor Kuzhambu|Lemon Rice|Rajma|Mix Veg|Plain Rice|Mix-Veg Raita|Roti|Green Salad",
+"Tomato Pappu|Veg 65 / Mirchi Bajji|Bisi Belle Bath|Yellow Dal Fry|#|Jeera Onion Pulao|Lauki Mint Raita|Roti|Fryums",
+"Pachi Pulusu|#|Plain Rice|Punjabi Kadhi Pakoda|Aloo Matar Gravy|Plain Rice|Majjiga Pulusu|Roti|Green Salad",
+"Sambhar|Bagara Baingan|Plain Rice|Black Chana|Mix Veg Kofta|Veg Pulao|Fruit Raita|Roti|Pickled Salad",
+"Senaga Pappu|Paruppu Urundai Kulambu|Khuska|Matar Paneer / Matar Mushroom|#|Plain Rice|Dahi Bhalla|Roti|Green Salad and Imly Chutney"],
+D:[
+"Mysore Sambhar|#|Plain Rice|Moong Chhilka Dal|Gatta Curry|Bhuna Onion Pulao|Roti|Fryums|Gulab Jamun",
+"Majjiga Pulusu|Donda Kaya Fry|Soya Biryani|Yellow Dal Fry|Palak Paneer / Kadai Paneer|Plain Rice|Roti and Missi Roti|Green Salad|Semiya Kheer",
+"Beerakaya Pappu|Vada Curry|Plain Rice|Sabut Masoor Dal|Mushroom Matar / Methi Malai Matar|Veg Dum Biryani|Roti|Green Salad|Besan Burfi",
+"Tamarind Rasam|Potato Peas Poriyal|Plain Rice|Maah Ki Dal|Aloo Bengan Chokha|Jeera Rice|Roti / Litti|Fryums|Rasgulla",
+"Kandhi Pappu|Meal Maker Curry|Plain Rice|Dal Palak|Paneer Do Pyaza|Matar Pulao|Roti|Green Salad|Moong Dal Halwa / Ice Cream",
+"Tomato Rasam|#|Tomato Rice|Arhar Dal|Mix Veg|Plain Rice|Roti and Ajwain Roti|Fryums|Balushahi",
+"Vengaya Sambhar (Onion)|Artikai Vepudu|Soya & Matar Dum Biryani|Rajma|Aloo Shimla|Plain Rice|Roti|Green Salad|Kheer"]},
+2:{B:[
+"Masala Dosa / Veg Utthapam|Sambhar|Indori Poha|Tomato Ketchup|Coconut Chutney|Broken Wheat Upma|Brown Bread|Jam|Butter (1 sachet)|Cornflakes|Masala Tea|Coffee|Plain Milk",
+"Stuffed Aloo / Mooli Methi Prantha|Packed Curd|Vermicelli Upma|Tomato Ketchup|Minapa Punugulu|South Tomato Chutney|Steamed Vegetables|White Bread|Jam|Butter (1 sachet)|Cornflakes|Masala Tea|Coffee|Plain Milk|Banana",
+"Stuffed Mix Prantha|Pickle|Vegetable Pasta|Tomato Ketchup|Masala Vegetable Idli|Peanut Chutney|Mix Dal Sprouts|Brown Bread|Jam|Cornflakes|Masala Tea|Coffee|Plain Milk",
+"Poori|Aloo Chana Curry|Cold Sandwich|Tomato Ketchup|Vegetable Rawa Upma|Tomato Gojju|Millet Upma|White Bread|Jam|Cornflakes|Masala Tea|Coffee|Plain Milk|Seasonal Fruit",
+"Missa Prantha|Pickle|Vegetable Macaroni|Tomato Ketchup|Idli with Sambhar|Coconut Chutney|Moong Sprouts|Brown Bread|Jam|Butter (1 sachet)|Cornflakes|Masala Tea|Coffee|Plain Milk",
+"Plain Prantha|Soya Paneer Bhurji|Aloo Bonda|Coconut Chutney|Vermicelli Upma|Tomato Ketchup|Mixed Cut Fruits|White Bread|Jam|Butter (1 sachet)|Cornflakes|Masala Tea|Coffee|Plain Milk",
+"Stuffed Aloo Onion Prantha|Packed Curd|Indori Poha|Tomato Ketchup|Medu Vada with Sambhar|Peanut Chutney|Soyaseed Sprouts|Brown Bread|Jam|Butter (1 sachet)|Cornflakes|Masala Tea|Coffee|Plain Milk"],
+L:[
+"Garlic Pepper Rasam|Gutti Vankaya|Tomato Rice|Pindi Chhole|Khatta Meetha Petha|Jeera Rice|Plain Curd|Roti and Bhatura|Pickled Onion",
+"Chamagadda Pulusu|Vegetable Sagu|Curd Rice|Dal Makhni|#|Plain Rice|Cucumber / Ghiya Raita|Roti|Green Salad",
+"Drum Stick Sambhar|Potato 65|Coconut Rice|Lobia Dal|Mix Veg|Plain Rice|Mix-Veg Raita|Roti|Green Salad",
+"Tamarind Rasam|Mushroom Chettinad Curry|Pudina Rice|Sabut Masoor Dal|#|Plain Rice|Boondi Raita|Roti|Fryums",
+"Pappu Charu|#|Soya Biryani|Punjabi Kadhi Pakoda|Dum Aloo|Plain Rice|Majjiga Pulusu|Roti|Green Salad",
+"Mysore Sambhar|Veg 65 / Cabbage 65|Plain Rice|Dal Palak|Soya Chaap Masala|Jeera Rice|Plain Curd|Roti|Fryums",
+"Cabbage Pappu|Aloo Gadda Vepudu|Andhra Veg Biryani|Rajma|Kadai Paneer|Plain Rice|Dahi Bhalla|Roti|Green Salad and Imly Chutney"],
+D:[
+"Thakkali Sambhar|#|Plain Rice|Hari Moong Dal|Nutri Chilly|Veg Pulao|Roti|Fryums|Suji Halwa",
+"Tomato Pappu|Aloo Gadda Vepudu|Chitranna Rice|Yellow Moong Dal|#|Plain Rice|Roti|Green Salad|Coconut Laddu",
+"Beerakaya Pappu|Vegetable Kurma|Hyderabadi Biryani|Maah Chana Dal|Paneer Butter Masala|Plain Rice|Roti and Spinach Roti|Fryums|Gulab Jamun",
+"Pasi Paruppu Sambar|Donda Kaya Fry|Puliyodharai|Rajma Rasila|Aloo Matar Dry|Veg Pulao|Roti|Green Salad|Besan Barfi",
+"Senaga Pappu|Avial|Plain Rice|White Chana|Manchurian|Fried Rice / Noodles|Roti|Green Salad|Boondi Laddu",
+"Meal Maker Curry|Kerala Urulai Roast|Plain Rice|Dal Makhni|#|Vegetable Khichdi|Roti and Ajwain Roti|Green Salad|Gajar Ka Halwa / Ice Cream",
+"Pepper Rasam|#|Bisi Belle Bath|Panchratani Dal|Mix Veg|Plain Rice|Roti|Fryums|Fruit Custard"]}};
+/* seasonal veg: key = week + Day + meal */
+var S={
+a:{"1MonL":"Bhindi Masala","1WedL":"Louki / Tori Lababdar","1SatL":"Arbi Ajwaini Masala","2MonL":"Bhindi Do Pyaza","2WedL":"Nutri Keema Matar","1ThuL":"Mix Veg Poriyal","2ThuL":"Beans Tomato Aaloo Curry","1SunD":"Zimikand Pulusu","1FriD":"Bhindi Pulusu","2SunD":"Beans Poriyal","2SatD":"Arbi Pulusu","2MonD":"Aloo Parwal / Shimla Mirch","2FriD":"Bhindi Masala"},
+n:{"1MonL":"Jimikand Matar","1WedL":"Shalgam Matar","1SatL":"Bengan Bhartha / Gobhi Gajar Matar","2MonL":"Aloo Gobhi Matar","2WedL":"Aloo Methi","1ThuL":"Beans Poriyal","2ThuL":"Palak Corn + Makairoti / Poori","1SunD":"Cauliflower Poriyal","1FriD":"Chikkudukaya Curry","2SunD":"Cabbage Dum Fry with Chana Dal","2SatD":"Turnip Peas Curry","2MonD":"Sarso Saag + Makairoti / Poori","2FriD":"Palak Corn / Chana"},
+m:{"1MonL":"Aloo Beans","1WedL":"Ghia Kofta Curry","1SatL":"Aloo Gobhi Adraki","2MonL":"Aloo Hara Pyaz","2WedL":"Aloo Shimla Mirch","1ThuL":"Drumstick Tomato","2ThuL":"Drumstick Baigan Matar","1SunD":"Kundru Masala","1FriD":"Zimikand Pulusu","2SunD":"Kundru 65","2SatD":"Beans Dum Fry","2MonD":"Karela Aloo Fry","2FriD":"Ghia Kofta Curry"}};
+function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
+function wkIdx(d){var t=new Date(d.getFullYear(),d.getMonth(),d.getDate());return Math.floor((Math.round(t/864e5 - t.getTimezoneOffset()/1440) - 3)/7)}
+var now=new Date(),idx=wkIdx(now);
+function curWeek(){var a=parseInt(ls("aw"))||1,ai=parseInt(ls("ai"));if(isNaN(ai)){ai=idx;ls("ai",ai);ls("aw",a)}return ((idx-ai)%2===0)?a:3-a}
+var mo=now.getMonth()+1,season=(mo>=11||mo<=2)?"n":(mo>=8&&mo<=10)?"a":"m";
+var sname={n:"Nov–Feb",a:"Aug–Oct",m:"Mar–May"}[season];
+var sel=now.getDay(),wk=curWeek(),h=now.getHours()+now.getMinutes()/60;
+function render(){
+ wk=curWeek();
+ document.getElementById("t").textContent=D[sel]+(sel===now.getDay()?" · Today":"");
+ document.getElementById("wk").textContent="Week "+wk+" · "+sname+" veg";
+ var tb=document.getElementById("tabs");tb.innerHTML="";
+ K.forEach(function(k,i){var b=document.createElement("button");b.textContent=k;if(i===sel)b.className="on";if(i===now.getDay())b.className+=" today";b.onclick=function(){sel=i;render()};tb.appendChild(b)});
+ var cur=h<10.5?"B":h<16?"L":"D";
+ var meals=[["B","Breakfast","🍳"],["L","Lunch","🍛"],["D","Dinner","🍽️"]],out="";
+ meals.forEach(function(m){
+  var items=M[wk][m[0]][sel].split("|"),li="";
+  items.forEach(function(it){
+   if(it==="#"){var v=S[season][wk+K[sel]+m[0]];li+='<li class="s">'+(v||"Seasonal Vegetable")+'*</li>'}
+   else li+="<li>"+it+"</li>"});
+  var t=m[0]==="B"?"":"";
+  out+='<div class="card '+m[0]+(m[0]===cur&&sel===now.getDay()?" now":"")+'"><div class="hd"><span>'+m[2]+" "+m[1]+"</span></div><ul>"+li+"</ul></div>"});
+ document.getElementById("out").innerHTML=out;
+}
+document.getElementById("sw").onclick=function(){ls("aw",3-curWeek());ls("ai",idx);render()};
+render();
+var lastDay=now.getDate();
+function refresh(){var n=new Date();if(n.getDate()!==lastDay){location.reload();return}now=n;h=n.getHours()+n.getMinutes()/60;render()}
+document.addEventListener("visibilitychange",function(){if(!document.hidden)refresh()});
+setInterval(refresh,60000);
+if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}
+</script></body></html>
